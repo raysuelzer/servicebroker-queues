@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using ServiceBroker.Queues.ServiceBroker.SQL;
 
 namespace ServiceBroker.Queues.Storage
 {
@@ -8,7 +9,7 @@ namespace ServiceBroker.Queues.Storage
 		[Conditional("QUEUE_MODIFY")]
         public static void PurgeAll(string connectionStringName)
         {
-			SqlFileCommandExecutor.ExecuteSqlScripts(connectionStringName, Environment.CurrentDirectory + "\\ServiceBroker\\SQL\\Purge");
+			SqlFileCommandExecutor.ExecuteSqlScript(connectionStringName, SqlCommands.PurgeAllHistory);
         }
     }
 }

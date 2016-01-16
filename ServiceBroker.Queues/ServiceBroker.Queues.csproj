@@ -82,6 +82,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="QueueManager.cs" />
+    <Compile Include="ServiceBroker\SQL\SqlCommands.cs" />
     <Compile Include="Storage\AbstractActions.cs" />
     <Compile Include="Storage\ExtensionMethods.cs" />
     <Compile Include="Storage\GlobalActions.cs" />
@@ -91,14 +92,6 @@
     <Compile Include="Storage\SerializationExtensions.cs" />
     <Compile Include="Storage\SqlFileCommandExecutor.cs" />
     <Compile Include="Storage\StorageUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="ServiceBroker\SQL\Create\1_CreateQueueSchema.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ServiceBroker\SQL\Purge\1_PurgeAllHistory.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

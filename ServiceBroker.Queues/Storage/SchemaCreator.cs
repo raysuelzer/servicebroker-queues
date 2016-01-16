@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using ServiceBroker.Queues.ServiceBroker.SQL;
 
 namespace ServiceBroker.Queues.Storage
 {
@@ -14,7 +15,7 @@ namespace ServiceBroker.Queues.Storage
 		[Conditional("QUEUE_MODIFY")]
         public void Create(string connectionStringName, int port)
         {
-			SqlFileCommandExecutor.ExecuteSqlScripts(connectionStringName, Environment.CurrentDirectory + "\\ServiceBroker\\SQL\\Create",
+			SqlFileCommandExecutor.ExecuteSqlScript(connectionStringName, SqlCommands.CreateQueueSchema,
 				sql =>
 				{
 					sql = sql.Replace("<port, , 2204>", port.ToString());
