@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceBroker.Queues.Storage;
@@ -9,17 +10,18 @@ namespace ServiceBroker.Queues.Tests
     [TestClass]
 	public class CanUseQueue : QueueTest
     {
-        private readonly Uri queueUri = new Uri("tcp://localhost:2204/h");
-        private readonly QueueStorage qf;
+        private Uri QueueUri => new Uri("tcp://localhost:2204/h");
+        
+        private QueueStorage QueueStorage { get; }
 
         public CanUseQueue() : base("testqueue")
         {
-            qf = new QueueStorage("testqueue");
-            qf.Initialize();
-            qf.Global(actions =>
+            QueueStorage = new QueueStorage("testqueue");
+            QueueStorage.Initialize();
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.CreateQueue(queueUri);
+                actions.CreateQueue(QueueUri);
                 actions.Commit();
             });
         }
@@ -27,23 +29,22 @@ namespace ServiceBroker.Queues.Tests
         [TestMethod]
         public void CanPutSingleMessageInQueue()
         {
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 13, 12, 43, 5 },
                 });
                 actions.Commit();
             });
             Thread.Sleep(30);
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                var queue = actions.GetQueue(queueUri);
+                var queue = actions.GetQueue(QueueUri);
                 var message = queue.Dequeue();
-
-                Assert.AreEqual(new byte[] { 13, 12, 43, 5 }, message.Data);
+                Assert.AreEqual("1312435", string.Join("", message.Data.Select(b => b.ToString())));
                 actions.Commit();
             });
         }
@@ -51,30 +52,30 @@ namespace ServiceBroker.Queues.Tests
         [TestMethod]
         public void WillGetMessagesBackInOrder()
         {
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 1 },
                 });
                 actions.Commit();
             });
             Thread.Sleep(10);
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 2 },
                 });
                 actions.Commit();
             });
             Thread.Sleep(10);
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 3 },
                 });
@@ -86,39 +87,39 @@ namespace ServiceBroker.Queues.Tests
             MessageEnvelope m2 = null;
             MessageEnvelope m3 = null;
 
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                var queue = actions.GetQueue(queueUri);
+                var queue = actions.GetQueue(QueueUri);
                 m1 = queue.Dequeue();
                 actions.Commit();
             });
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                var queue = actions.GetQueue(queueUri);
+                var queue = actions.GetQueue(QueueUri);
                 m2 = queue.Dequeue();
                 actions.Commit();
             });
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                var queue = actions.GetQueue(queueUri);
+                var queue = actions.GetQueue(QueueUri);
                 m3 = queue.Dequeue();
                 actions.Commit();
             });
-            Assert.AreEqual(new byte[] { 1 }, m1.Data);
-            Assert.AreEqual(new byte[] { 2 }, m2.Data);
-            Assert.AreEqual(new byte[] { 3 }, m3.Data);
+            Assert.AreEqual(1, m1.Data[0]);
+            Assert.AreEqual(2, m2.Data[0]);
+            Assert.AreEqual(3, m3.Data[0]);
         }
 
         [TestMethod]
         public void WillNotGiveMessageToTwoClient()
         {
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 1 },
                 });
@@ -126,10 +127,10 @@ namespace ServiceBroker.Queues.Tests
             });
 
             Thread.Sleep(30);
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                actions.GetQueue(queueUri).RegisterToSend(queueUri, new MessageEnvelope
+                actions.GetQueue(QueueUri).RegisterToSend(QueueUri, new MessageEnvelope
                 {
                     Data = new byte[] { 2 },
                 });
@@ -138,16 +139,16 @@ namespace ServiceBroker.Queues.Tests
 
             Thread.Sleep(30);
 
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
-                var m1 = actions.GetQueue(queueUri).Dequeue();
+                var m1 = actions.GetQueue(QueueUri).Dequeue();
                 MessageEnvelope m2 = null;
 
-                qf.Global(queuesActions =>
+                QueueStorage.Global(queuesActions =>
                 {
                     queuesActions.BeginTransaction();
-                    m2 = queuesActions.GetQueue(queueUri).Dequeue();
+                    m2 = queuesActions.GetQueue(QueueUri).Dequeue();
 
                     queuesActions.Commit();
                 });
@@ -159,9 +160,9 @@ namespace ServiceBroker.Queues.Tests
         [TestMethod]
         public void WillGiveNullWhenNoItemsAreInQueue()
         {
-            qf.Global(actions =>
+            QueueStorage.Global(actions =>
             {
-                var message = actions.GetQueue(queueUri).Dequeue();
+                var message = actions.GetQueue(QueueUri).Dequeue();
                 Assert.IsNull(message);
                 actions.Commit();
             });

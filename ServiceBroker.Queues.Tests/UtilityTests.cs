@@ -1,6 +1,6 @@
-using ServiceBroker.Queues.Storage;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceBroker.Queues.Storage;
 
 namespace ServiceBroker.Queues.Tests
 {
