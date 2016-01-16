@@ -6,12 +6,12 @@ namespace ServiceBroker.Queues.Storage
 {
     public abstract class AbstractActions
     {
-        protected readonly SqlConnection connection;
-        protected SqlTransaction transaction;
+        protected SqlConnection Connection { get; }
+        protected SqlTransaction Transaction;
 
         protected AbstractActions(SqlConnection connection)
         {
-            this.connection = connection;
+            Connection = connection;
         }
 
         public QueueActions GetQueue(Uri queueUri)
@@ -21,21 +21,21 @@ namespace ServiceBroker.Queues.Storage
 
         public void BeginTransaction()
         {
-            transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
+            Transaction = Connection.BeginTransaction(IsolationLevel.RepeatableRead);
         }
 
         public void Commit()
         {
-            if(transaction == null)
+            if(Transaction == null)
                 return;
-            transaction.Commit();
+            Transaction.Commit();
         }
 
         internal void ExecuteCommand(string commandText, Action<SqlCommand> command)
         {
-            using(var sqlCommand = new SqlCommand(commandText, connection))
+            using(var sqlCommand = new SqlCommand(commandText, Connection))
             {
-                sqlCommand.Transaction = transaction;
+                sqlCommand.Transaction = Transaction;
                 command(sqlCommand);
             }
         }

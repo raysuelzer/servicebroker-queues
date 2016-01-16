@@ -1,32 +1,31 @@
 using System;
 using System.Threading;
 using System.Transactions;
-using log4net;
 using ServiceBroker.Queues.Storage;
 
 namespace ServiceBroker.Queues
 {
     public class QueueManager : IDisposable
     {
-        private volatile bool wasDisposed;
-        private readonly Timer purgeOldDataTimer;
-        private readonly QueueStorage queueStorage;
-        private readonly ILog logger = LogManager.GetLogger(typeof(QueueManager));
+        private volatile bool _wasDisposed;
+        private Timer PurgeOldDataTimer { get; }
+        private QueueStorage QueueStorage { get; }
+
 
         public QueueManager(string connectionStringName)
         {
-            queueStorage = new QueueStorage(connectionStringName);
-            queueStorage.Initialize();
+            QueueStorage = new QueueStorage(connectionStringName);
+            QueueStorage.Initialize();
 
-            purgeOldDataTimer = new Timer(PurgeOldData, null, TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(3));
+            PurgeOldDataTimer = new Timer(PurgeOldData, null, TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(3));
         }
 
         private void PurgeOldData(object ignored)
         {
-            logger.DebugFormat("Starting to purge old data");
+
             try
             {
-                queueStorage.Global(actions =>
+                QueueStorage.Global(actions =>
                 {
                     actions.BeginTransaction();
                     actions.DeleteHistoric();
@@ -35,26 +34,26 @@ namespace ServiceBroker.Queues
             }
             catch (Exception exception)
             {
-                logger.Warn("Failed to purge old data from the system", exception);
+                throw new Exception("Failed to purge old data from the system", exception);
             }
         }
 
         public void Dispose()
         {
-            if(wasDisposed)
+            if(_wasDisposed)
                 return;
 
-            if (purgeOldDataTimer != null)
+            if (PurgeOldDataTimer != null)
             {
-                purgeOldDataTimer.Dispose();
+                PurgeOldDataTimer.Dispose();
             }
 
-            wasDisposed = true;
+            _wasDisposed = true;
         }
 
         private void AssertNotDisposed()
         {
-            if (wasDisposed)
+            if (_wasDisposed)
                 throw new ObjectDisposedException("QueueManager");
         }
 
@@ -82,7 +81,7 @@ namespace ServiceBroker.Queues
                 throw new InvalidOperationException("You cannot find queue with messages with an ambient transaction, this method is not MSDTC friendly");
 
             Uri queueUri = null;
-            queueStorage.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
                 queueUri = actions.PollForMessage();
@@ -96,7 +95,7 @@ namespace ServiceBroker.Queues
             foreach (var queue in queues)
             {
                 Uri uri = queue;
-                queueStorage.Global(actions =>
+                QueueStorage.Global(actions =>
                 {
                     actions.BeginTransaction();
                     actions.CreateQueue(uri);
@@ -109,7 +108,7 @@ namespace ServiceBroker.Queues
         {
             EnsureEnslistment();
 
-            queueStorage.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
                 actions.GetQueue(fromQueue)
@@ -130,7 +129,7 @@ namespace ServiceBroker.Queues
         {
             AssertNotDisposed();
             MessageEnvelope message = null;
-            queueStorage.Global(actions =>
+            QueueStorage.Global(actions =>
             {
                 actions.BeginTransaction();
                 message = actions.GetQueue(queueUri).Dequeue();

@@ -1,37 +1,30 @@
 using System;
 using System.Data;
-using log4net;
 
 namespace ServiceBroker.Queues.Storage
 {
     public class QueueActions
     {
-        private readonly Uri queueUri;
-        private AbstractActions actions;
-        private readonly ILog logger = LogManager.GetLogger(typeof (QueueActions));
+        private Uri QueueUri { get; }
+        private AbstractActions Actions { get; }
 
         public QueueActions(Uri queueUri, AbstractActions actions)
         {
-            this.queueUri = queueUri;
-            this.actions = actions;
+            QueueUri = queueUri;
+            Actions = actions;
         }
 
-        public AbstractActions Actions
-        {
-            get { return actions; }
-            set{ actions = value; }
-        }
-
+    
         public MessageEnvelope Dequeue()
         {
             MessageEnvelope message = null;
-            actions.ExecuteCommand("[SBQ].[Dequeue]", cmd =>
+            Actions.ExecuteCommand("[SBQ].[Dequeue]", cmd =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@queueName", queueUri.ToServiceName());
+                cmd.Parameters.AddWithValue("@queueName", QueueUri.ToServiceName());
                 using (var reader = cmd.ExecuteReader(CommandBehavior.Default))
                 {
-                    if (reader == null || !reader.Read())
+                    if (!reader.Read())
                     {
                         message = null;
                         return;
@@ -46,10 +39,10 @@ namespace ServiceBroker.Queues.Storage
         public void RegisterToSend(Uri destination, MessageEnvelope payload)
         {
             byte[] data = payload.Serialize();
-            actions.ExecuteCommand("[SBQ].[RegisterToSend]", cmd =>
+            Actions.ExecuteCommand("[SBQ].[RegisterToSend]", cmd =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@localServiceName", queueUri.ToServiceName());
+                cmd.Parameters.AddWithValue("@localServiceName", QueueUri.ToServiceName());
                 cmd.Parameters.AddWithValue("@address", destination.ToServiceName());
                 cmd.Parameters.AddWithValue("@route", string.Format("{0}://{1}", destination.Scheme, destination.Authority));
                 cmd.Parameters.AddWithValue("@sizeOfData", payload.Data.Length);
@@ -59,10 +52,6 @@ namespace ServiceBroker.Queues.Storage
                 cmd.Parameters.AddWithValue("@data", data);
                 cmd.ExecuteNonQuery();
             });
-            logger.DebugFormat("Created output message for 'tcp://{0}:{1}'",
-                               destination.Host,
-                               destination.Port
-                );
         }
 
         private static MessageEnvelope Fill(IDataRecord reader)

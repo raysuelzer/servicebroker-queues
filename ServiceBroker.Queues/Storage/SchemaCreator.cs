@@ -1,4 +1,3 @@
-using System;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using ServiceBroker.Queues.ServiceBroker.SQL;

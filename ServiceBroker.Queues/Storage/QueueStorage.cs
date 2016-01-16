@@ -7,11 +7,11 @@ namespace ServiceBroker.Queues.Storage
 {
     public class QueueStorage
     {
-        private readonly ConnectionStringSettings connectionStringSettings;
+        private ConnectionStringSettings ConnectionStringSettings { get; }
 
         public QueueStorage(string connectionStringName)
         {
-            connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
+            ConnectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
         }
 
         public Guid Id { get; private set; }
@@ -23,13 +23,13 @@ namespace ServiceBroker.Queues.Storage
 
         private void SetIdFromDb()
         {
-			using (var connection = new SqlConnection(connectionStringSettings.ConnectionString))
+			using (var connection = new SqlConnection(ConnectionStringSettings.ConnectionString))
 			{
 				connection.Open();
 				using (var sqlCommand = new SqlCommand("select * from [SBQ].[Detail]", connection))
 				using (var reader = sqlCommand.ExecuteReader(CommandBehavior.SingleRow))
 				{
-					if (reader == null || !reader.Read())
+					if (reader.Read())
 						throw new InvalidOperationException("No version detail found in the queue storage");
 
 					Id = reader.GetGuid(reader.GetOrdinal("id"));
@@ -47,7 +47,7 @@ namespace ServiceBroker.Queues.Storage
 
         public void Global(Action<GlobalActions> action)
         {
-            using (var connection = new SqlConnection(connectionStringSettings.ConnectionString))
+            using (var connection = new SqlConnection(ConnectionStringSettings.ConnectionString))
             {
                 connection.Open();
                 var qa = new GlobalActions(connection);

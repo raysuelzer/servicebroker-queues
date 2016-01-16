@@ -4,23 +4,23 @@ namespace ServiceBroker.Queues
 {
     public class Queue : IQueue
     {
-        private readonly QueueManager queueManager;
-        private readonly Uri queueUri;
+        private QueueManager QueueManager { get; }
+        private Uri QueueUri { get; }
 
         public Queue(QueueManager queueManager, Uri queueUri)
         {
-            this.queueManager = queueManager;
-            this.queueUri = queueUri;
+            QueueManager = queueManager;
+            QueueUri = queueUri;
         }
 
         public MessageEnvelope Receive()
         {
-            return queueManager.Receive(queueUri);
+            return QueueManager.Receive(QueueUri);
         }
 
         public MessageEnvelope Receive(TimeSpan timeout)
         {
-            return queueManager.Receive(queueUri, timeout);
+            return QueueManager.Receive(QueueUri, timeout);
         }
     }
 }
