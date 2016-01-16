@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.Queues", "ServiceBroker.Queues\ServiceBroker.Queues.csproj", "{FE442B11-861E-4997-8D20-6915191ACF27}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.Queues.Tests", "ServiceBroker.Queues.Tests\ServiceBroker.Queues.Tests.csproj", "{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{FE442B11-861E-4997-8D20-6915191ACF27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE442B11-861E-4997-8D20-6915191ACF27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE442B11-861E-4997-8D20-6915191ACF27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
