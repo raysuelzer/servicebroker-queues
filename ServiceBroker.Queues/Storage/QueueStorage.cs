@@ -29,7 +29,7 @@ namespace ServiceBroker.Queues.Storage
 				using (var sqlCommand = new SqlCommand("select * from [SBQ].[Detail]", connection))
 				using (var reader = sqlCommand.ExecuteReader(CommandBehavior.SingleRow))
 				{
-					if (reader.Read())
+					if (!reader.Read())
 						throw new InvalidOperationException("No version detail found in the queue storage");
 
 					Id = reader.GetGuid(reader.GetOrdinal("id"));

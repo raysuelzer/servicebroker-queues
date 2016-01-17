@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.Queues", "Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.Queues.Tests", "ServiceBroker.Queues.Tests\ServiceBroker.Queues.Tests.csproj", "{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBroker.Queues.Example", "ServiceBroker.Queues.Example\ServiceBroker.Queues.Example.csproj", "{97E58A2D-B4C5-405C-A593-48AEE0EE2403}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAF9AAE6-D18D-4FF9-950B-80E7609397B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97E58A2D-B4C5-405C-A593-48AEE0EE2403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97E58A2D-B4C5-405C-A593-48AEE0EE2403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97E58A2D-B4C5-405C-A593-48AEE0EE2403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97E58A2D-B4C5-405C-A593-48AEE0EE2403}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
